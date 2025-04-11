@@ -35,11 +35,38 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(ui->executeNewButton, &QPushButton::clicked, this, &MainWindow::onExecuteNewButtonClicked);
     connect(ui->saveButton, &QPushButton::clicked, this, &MainWindow::onAddButtonClicked);
     connect(ui->saveToFileButton, &QPushButton::clicked, this, &MainWindow::onSaveButtonClicked);
+    connect(ui->backupButton, &QPushButton::clicked, this, &MainWindow::onBackupButtonClicked);
 }
 
 MainWindow::~MainWindow() {
 
     delete ui;
+}
+
+void MainWindow::onBackupButtonClicked() {
+    QString user = "postgres";
+    QString dbName = "Pizza";
+    QString outputFile = "backup.sql";
+
+    QString program = "pg_dump";
+    QStringList arguments;
+    arguments << "-U" << user << "-d" << dbName;
+
+    QFile file(outputFile);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate))
+        return;
+
+    QProcess process;
+
+    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+    env.insert("PGPASSWORD", "1234");
+    process.setProcessEnvironment(env);
+
+    process.setStandardOutputFile(outputFile);
+    process.start(program, arguments);
+    process.waitForFinished();
+
+    QMessageBox::information(nullptr, "Результат выполнения", "Резервная копия создана");
 }
 
 void MainWindow::executeQuery(QString query)
@@ -51,14 +78,17 @@ void MainWindow::executeQuery(QString query)
     if (executedQuery.lastError().isValid())
         QMessageBox::critical(nullptr, "Ошибка SQL-запроса", executedQuery.lastError().text());
     else {
-        QSqlRecord record = model->record();
-        for (int i = 0; i < record.count(); ++i) {
-            QString fieldName = record.fieldName(i);
-            model->setHeaderData(i, Qt::Horizontal, QObject::tr(fieldName.toUtf8()));
-        }
+        if (query.contains("SELECT")) {
+            QSqlRecord record = model->record();
+            for (int i = 0; i < record.count(); ++i) {
+                QString fieldName = record.fieldName(i);
+                model->setHeaderData(i, Qt::Horizontal, QObject::tr(fieldName.toUtf8()));
+            }
 
-        ui->queryResultView->setModel(model);
-        ui->queryResultView->resizeColumnsToContents();
+            ui->queryResultView->setModel(model);
+            ui->queryResultView->resizeColumnsToContents();
+        } else
+            QMessageBox::information(nullptr, "Результат выполнения", "Запрос успешно выполнен");
     }
 }
 

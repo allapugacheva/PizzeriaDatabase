@@ -124,11 +124,22 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="saveToFileButton">
-        <property name="text">
-         <string>Сохранить в файл</string>
-        </property>
-       </widget>
+       <layout class="QHBoxLayout" name="horizontalLayout_4">
+        <item>
+         <widget class="QPushButton" name="backupButton">
+          <property name="text">
+           <string>Сделать резервную копию</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="saveToFileButton">
+          <property name="text">
+           <string>Сохранить в файл</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
      </layout>
     </item>

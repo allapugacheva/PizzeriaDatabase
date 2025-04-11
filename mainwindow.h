@@ -36,6 +36,7 @@ private slots:
     void onExecuteNewButtonClicked();
     void onAddButtonClicked();
     void onSaveButtonClicked();
+    void onBackupButtonClicked();
 };
 
 #endif // MAINWINDOW_H
